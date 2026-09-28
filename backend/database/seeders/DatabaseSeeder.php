@@ -8,6 +8,13 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // Domain defaults are added with their respective implementation phases.
+        $this->call([
+            TaskStatusSeeder::class,
+            TaskPrioritySeeder::class,
+            PermissionSeeder::class,
+            RoleSeeder::class,
+            NotificationTypeSeeder::class,
+            SystemSettingSeeder::class,
+        ]);
     }
 }

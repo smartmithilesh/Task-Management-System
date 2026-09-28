@@ -31,7 +31,7 @@ backend/
 
 ## Database and relationships
 
-Phase 2 adds no product-domain schema or custom migration. It runs the framework migrations for `users`, `password_reset_tokens`, `sessions`, cache, and queue tables. The initial administrator is stored in Laravel's `users` table with the framework password hash cast. Roles, permissions, organization ownership, and their relationships are reserved for their later phases.
+Phase 2 adds no product-domain schema or custom migration. It runs the framework migrations for `users`, `password_reset_tokens`, `sessions`, cache, and queue tables. The initial administrator is stored in Laravel's `users` table with the framework password hash cast. The later Phase 3 database foundation adds organization, role, permission, and task reference tables; authorization enforcement and organization setup remain in their later feature phases.
 
 Before migrating, setup rejects unknown tables and any database that already contains users. It permits a fresh database and known Laravel tables from a safe partial-install retry. It only runs `migrate --force` and `db:seed --force`; it never uses `migrate:fresh`, truncation, or table drops. The base seeder is empty so no sample account is created.
 

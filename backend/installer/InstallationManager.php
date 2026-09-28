@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TaskManagement\Installer;
 
+use App\Models\Role;
 use Illuminate\Contracts\Console\Kernel as ConsoleKernel;
 use Illuminate\Support\Facades\Artisan;
 use PDO;
@@ -12,9 +13,7 @@ use Throwable;
 
 final class InstallationManager
 {
-    public function __construct(private readonly string $basePath)
-    {
-    }
+    public function __construct(private readonly string $basePath) {}
 
     /** @param array{host:string,port:int,database:string,username:string,password:string} $database */
     public static function connect(array $database): PDO
@@ -34,7 +33,7 @@ final class InstallationManager
     }
 
     /** @param array<string, string> $configuration
-     *  @param array{name:string,email:string,password:string} $admin
+     * @param  array{name:string,email:string,password:string}  $admin
      */
     public function install(array $configuration, array $database, array $admin, ?callable $onProgress = null): void
     {
@@ -96,6 +95,13 @@ final class InstallationManager
         $applicationTables = [
             'migrations', 'users', 'password_reset_tokens', 'sessions',
             'cache', 'cache_locks', 'jobs', 'job_batches', 'failed_jobs',
+            'organizations', 'departments', 'teams', 'roles', 'permissions',
+            'role_permissions', 'user_roles', 'team_users', 'task_statuses',
+            'task_priorities', 'task_categories', 'organization_settings', 'system_settings',
+            'notification_types', 'notification_preferences', 'integrations', 'integration_credentials',
+            'projects', 'project_members', 'tasks', 'task_assignees', 'task_watchers',
+            'task_reviewers', 'tags', 'task_tag', 'checklists', 'checklist_items',
+            'comments', 'comment_mentions', 'attachments', 'time_entries', 'activity_logs', 'notifications',
         ];
         $statement = $connection->query('SELECT TABLE_NAME FROM information_schema.tables WHERE table_schema = DATABASE()');
 
@@ -126,7 +132,7 @@ final class InstallationManager
     }
 
     /** @param array<string, string> $configuration
-     *  @param array{host:string,port:int,database:string,username:string,password:string} $database
+     * @param  array{host:string,port:int,database:string,username:string,password:string}  $database
      */
     private function writeEnvironment(array $configuration, array $database): void
     {
@@ -195,11 +201,21 @@ final class InstallationManager
             throw new RuntimeException('The administrator account could not be created.');
         }
 
-        $userClass::query()->create([
+        $user = $userClass::query()->create([
             'name' => $admin['name'],
             'email' => $admin['email'],
             'password' => $admin['password'],
         ]);
+
+        $superAdminRole = Role::query()
+            ->where('scope_key', 'global:super-admin')
+            ->first();
+
+        if ($superAdminRole === null) {
+            throw new RuntimeException('The administrator role could not be assigned.');
+        }
+
+        $user->roles()->syncWithoutDetaching([$superAdminRole->id => ['assigned_by' => null]]);
     }
 
     private function writeInstalledLock(string $path, string $adminEmail): void

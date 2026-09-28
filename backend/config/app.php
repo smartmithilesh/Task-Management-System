@@ -65,7 +65,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'UTC'),
 
     /*
     |--------------------------------------------------------------------------
@@ -79,6 +79,10 @@ return [
     */
 
     'locale' => env('APP_LOCALE', 'en'),
+
+    'date_format' => env('APP_DATE_FORMAT', 'd-m-Y'),
+
+    'time_format' => env('APP_TIME_FORMAT', 'H:i'),
 
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
