@@ -34,6 +34,8 @@ class PermissionSeeder extends Seeder
         ['name' => 'reports.view', 'label' => 'View reports', 'group_name' => 'reports'],
         ['name' => 'settings.manage', 'label' => 'Manage settings', 'group_name' => 'settings'],
         ['name' => 'integrations.manage', 'label' => 'Manage integrations', 'group_name' => 'integrations'],
+        ['name' => 'time_entries.view', 'label' => 'View time entries', 'group_name' => 'time'],
+        ['name' => 'time_entries.manage', 'label' => 'Manage time entries', 'group_name' => 'time'],
     ];
 
     public function run(): void

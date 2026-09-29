@@ -1,0 +1,10 @@
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    RewriteRule (^|/)\. - [F,L]
+    RewriteRule ^backend/public(?:/|$) - [L]
+    RewriteRule ^backend/ - [F,L]
+    RewriteRule ^(.*)$ backend/public/$1 [L]
+</IfModule>

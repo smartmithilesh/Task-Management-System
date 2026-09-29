@@ -87,10 +87,11 @@ $requirements = static function () use ($basePath): array {
 
     $checks['Redis extension'] = [extension_loaded('redis'), false];
     $checks['Optional: OPcache extension'] = [extension_loaded('Zend OPcache'), false];
+
     return $checks;
 };
 
-$render = static function (string $content, string $active, string $error = '') use ($escape, $labels, $steps, $installUrl): never {
+$render = static function (string $content, string $active, string $error = '') use ($escape, $labels, $steps): never {
     $stepIndex = array_search($active, $steps, true);
     if ($stepIndex === false) {
         $stepIndex = 0;
@@ -222,7 +223,7 @@ if ($currentStep === 'requirements') {
     $rows = '';
     $allRequired = true;
     foreach ($requirements() as $name => [$available, $required]) {
-        $allRequired = $allRequired && (!$required || $available);
+        $allRequired = $allRequired && (! $required || $available);
         $isOptional = str_starts_with($name, 'Optional:');
         $category = $isOptional ? 'Optional' : ($required ? 'Required' : 'Recommended');
         $status = $available ? '<span class="pass">✓ Ready</span>' : ($required ? '<span class="fail">✕ Required</span>' : '<span class="optional">'.$category.'</span>');

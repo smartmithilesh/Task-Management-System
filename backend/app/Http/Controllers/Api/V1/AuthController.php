@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\UserResource;
+use App\Models\ApiToken;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\JsonResponse;
@@ -11,8 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rules\Password as PasswordRule;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -21,9 +22,12 @@ class AuthController extends Controller
         $credentials = $request->validate([
             'email' => ['required', 'email', 'max:255'],
             'password' => ['required', 'string', 'max:256'],
+            'device_name' => ['sometimes', 'string', 'max:100'],
         ]);
         $credentials['email'] = Str::lower($credentials['email']);
         $credentials['status'] = 'active';
+        $deviceName = $credentials['device_name'] ?? null;
+        unset($credentials['device_name']);
 
         if (! Auth::guard('web')->attempt($credentials)) {
             throw ValidationException::withMessages([
@@ -33,14 +37,29 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
+        $data = ['user' => new UserResource($request->user())];
+        if ($deviceName !== null) {
+            $plainTextToken = Str::random(80);
+            ApiToken::query()->create([
+                'user_id' => $request->user()->id,
+                'name' => trim($deviceName) ?: 'Mobile device',
+                'token_hash' => hash('sha256', $plainTextToken),
+                'expires_at' => now()->addDays(90),
+            ]);
+            $data['token'] = $plainTextToken;
+        }
+
         return response()->json([
             'success' => true,
-            'data' => ['user' => new UserResource($request->user())],
+            'data' => $data,
         ]);
     }
 
     public function logout(Request $request): JsonResponse
     {
+        if ($request->attributes->has('api_token_id')) {
+            ApiToken::query()->whereKey($request->attributes->get('api_token_id'))->delete();
+        }
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

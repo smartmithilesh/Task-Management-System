@@ -1,0 +1,204 @@
+openapi: 3.1.0
+info:
+  title: Task Management System API
+  version: 1.0.0
+  description: Versioned Laravel API. Browser requests use same-origin session cookies and CSRF; mobile requests use revocable bearer tokens.
+servers:
+  - url: /api/v1
+security:
+  - bearerAuth: []
+  - sessionCookie: []
+paths:
+  /auth/login:
+    post:
+      security: []
+      summary: Sign in; provide device_name to issue a mobile bearer token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string, format: password }
+                device_name: { type: string, maxLength: 100 }
+      responses:
+        '200': { description: Authenticated; mobile response includes data.token once. }
+        '422': { description: Validation error. }
+        '429': { description: Rate limited. }
+  /auth/user:
+    get:
+      summary: Get the authenticated user.
+      responses:
+        '200': { description: User resource. }
+        '401': { description: Unauthenticated. }
+    patch:
+      summary: Update the authenticated user's profile.
+      responses:
+        '200': { description: Updated user resource. }
+  /auth/csrf-token:
+    get: { security: [], summary: Get the browser CSRF token, responses: { '200': { description: CSRF token and session cookie. } } }
+  /auth/logout:
+    post: { summary: End the session or revoke the current device token, responses: { '200': { description: Signed out. } } }
+  /auth/email/verification-notification:
+    post: { summary: Resend email verification, responses: { '200': { description: Verification message queued. } } }
+  /auth/email/verify/{id}/{hash}:
+    get: { summary: Verify the signed email address, responses: { '200': { description: Verified. } } }
+  /auth/password/forgot:
+    post:
+      security: []
+      summary: Request a password reset email with a generic response.
+      responses:
+        '200': { description: Reset request accepted. }
+        '429': { description: Rate limited. }
+  /auth/password/reset:
+    post:
+      security: []
+      summary: Complete a password reset.
+      responses:
+        '200': { description: Password updated. }
+        '422': { description: Invalid or expired token or invalid password. }
+  /auth/password/reset/{token}:
+    get:
+      security: []
+      summary: Resolve a legacy password reset token and email pair.
+      responses:
+        '200': { description: Reset token and email. }
+  /organization:
+    get: { summary: Get the current organization, responses: { '200': { description: Organization resource. } } }
+    post: { summary: Create the first organization, responses: { '201': { description: Organization resource. } } }
+    patch: { summary: Update organization settings, responses: { '200': { description: Organization resource. } } }
+  /projects:
+    get: { summary: List organization projects, responses: { '200': { description: Paginated project resources. } } }
+    post: { summary: Create a project, responses: { '201': { description: Project resource. } } }
+  /projects/{project}:
+    get: { summary: Get a project, responses: { '200': { description: Project resource. } } }
+    patch: { summary: Update a project, responses: { '200': { description: Project resource. } } }
+    delete: { summary: Archive a project, responses: { '200': { description: Archived. } } }
+  /projects/{project}/members:
+    put: { summary: Replace project membership, responses: { '200': { description: Project resource. } } }
+  /departments/{department}:
+    get: { summary: Get a department, responses: { '200': { description: Department resource. } } }
+    patch: { summary: Update a department, responses: { '200': { description: Department resource. } } }
+    delete: { summary: Archive a department, responses: { '200': { description: Archived. } } }
+  /teams/{team}:
+    get: { summary: Get a team, responses: { '200': { description: Team resource. } } }
+    patch: { summary: Update a team, responses: { '200': { description: Team resource. } } }
+    delete: { summary: Archive a team, responses: { '200': { description: Archived. } } }
+  /teams/{team}/members:
+    put: { summary: Replace team membership, responses: { '200': { description: Team resource. } } }
+  /roles/{role}:
+    patch: { summary: Update an organization role, responses: { '200': { description: Role resource. } } }
+    delete: { summary: Delete an organization role, responses: { '200': { description: Deleted. } } }
+  /users:
+    get: { summary: List organization users, responses: { '200': { description: Paginated users. } } }
+    post: { summary: Create an organization user, responses: { '201': { description: User resource. } } }
+  /users/{user}:
+    get: { summary: Get an organization user, responses: { '200': { description: User resource. } } }
+    patch: { summary: Update an organization user, responses: { '200': { description: User resource. } } }
+  /users/{user}/roles:
+    put: { summary: Replace a user's organization roles, responses: { '200': { description: User resource. } } }
+  /departments:
+    get: { summary: List organization departments, responses: { '200': { description: Paginated department resources. } } }
+    post: { summary: Create a department, responses: { '201': { description: Department resource. } } }
+  /teams:
+    get: { summary: List organization teams, responses: { '200': { description: Paginated team resources. } } }
+    post: { summary: Create a team, responses: { '201': { description: Team resource. } } }
+  /roles:
+    get: { summary: List global and organization roles, responses: { '200': { description: Role resources with permission grants. } } }
+    post: { summary: Create an organization role, responses: { '201': { description: Role resource. } } }
+  /permissions:
+    get: { summary: List assignable permissions, responses: { '200': { description: Permission resources. } } }
+  /tasks:
+    get: { summary: List/filter organization tasks, responses: { '200': { description: Paginated task resources. } } }
+    post: { summary: Create a task, responses: { '201': { description: Task resource. } } }
+  /tasks/{task}:
+    parameters:
+      - { name: task, in: path, required: true, schema: { type: string, format: uuid } }
+    get: { summary: Get a task, responses: { '200': { description: Task resource. }, '404': { description: Not found. } } }
+    patch: { summary: Update a task, responses: { '200': { description: Task resource. } } }
+    delete: { summary: Archive a task, responses: { '200': { description: Archived. } } }
+  /tasks/{task}/status:
+    patch: { summary: Change task status, responses: { '200': { description: Updated task resource. } } }
+  /tasks/{task}/assignees:
+    put: { summary: Replace task assignees, responses: { '200': { description: Task resource. } } }
+  /tasks/{task}/tags:
+    put: { summary: Replace task tags, responses: { '200': { description: Tag resources. } } }
+  /tasks/{task}/checklists:
+    post: { summary: Create a task checklist and optional items, responses: { '201': { description: Checklist resource. } } }
+  /checklists/{checklist}:
+    patch: { summary: Update a checklist, responses: { '200': { description: Checklist resource. } } }
+    delete: { summary: Delete a checklist, responses: { '200': { description: Deleted. } } }
+  /checklists/{checklist}/items:
+    post: { summary: Add a checklist item, responses: { '201': { description: Checklist item. } } }
+  /checklist-items/{item}:
+    patch: { summary: Update or complete a checklist item, responses: { '200': { description: Checklist item. } } }
+    delete: { summary: Delete a checklist item, responses: { '200': { description: Deleted. } } }
+  /comments/{comment}:
+    patch: { summary: Edit a comment, responses: { '200': { description: Comment resource. } } }
+    delete: { summary: Delete a comment, responses: { '200': { description: Deleted. } } }
+  /tasks/{task}/comments:
+    get: { summary: List task comments, responses: { '200': { description: Paginated comments. } } }
+    post: { summary: Add a task comment, responses: { '201': { description: Comment resource. } } }
+  /tasks/{task}/activity:
+    get: { summary: List task activity history, responses: { '200': { description: Paginated activity records. } } }
+  /tasks/{task}/attachments:
+    get: { summary: List private task attachments, responses: { '200': { description: Attachment metadata. } } }
+    post: { summary: Upload an attachment, responses: { '201': { description: Attachment metadata. } } }
+  /attachments/{attachment}/download:
+    get: { summary: Download an attachment after organization authorization, responses: { '200': { description: Private attachment bytes. }, '404': { description: Not found. } } }
+  /attachments/{attachment}:
+    delete: { summary: Delete a private attachment, responses: { '200': { description: Deleted. } } }
+  /tasks/{task}/timer/start:
+    post: { summary: Start a timer, responses: { '201': { description: Time entry. }, '409': { description: Another timer is running. } } }
+  /tasks/{task}/timer/stop:
+    post: { summary: Stop the current timer for this task, responses: { '200': { description: Time entry. } } }
+  /time-entries:
+    get: { summary: List the current user's time entries; all=1 requires permission, responses: { '200': { description: Paginated time entries. } } }
+    post: { summary: Record a manual time entry, responses: { '201': { description: Time entry. } } }
+  /time-entries/{entry}:
+    delete: { summary: Delete a completed time entry, responses: { '200': { description: Deleted. } } }
+  /tags:
+    get: { summary: List organization tags, responses: { '200': { description: Tag resources. } } }
+    post: { summary: Create an organization tag, responses: { '201': { description: Tag resource. } } }
+  /dashboard:
+    get: { summary: Organization dashboard totals and task status counts, responses: { '200': { description: Dashboard data. } } }
+  /reports/tasks:
+    get: { summary: Paginated task report; export=1 returns CSV, responses: { '200': { description: Task report or CSV download. } } }
+  /notifications:
+    get: { summary: List the authenticated user's notifications, responses: { '200': { description: Paginated notifications. } } }
+  /notifications/read-all:
+    patch: { summary: Mark all the authenticated user's notifications read, responses: { '200': { description: Success. } } }
+  /notifications/{notification}/read:
+    patch: { summary: Mark one notification read, responses: { '200': { description: Read. } } }
+  /notification-preferences:
+    get: { summary: Get notification delivery preferences, responses: { '200': { description: Preferences grouped by type and channel. } } }
+    put: { summary: Update notification delivery preferences, responses: { '200': { description: Success. } } }
+  /push-devices:
+    post: { summary: Register or rotate the current user's encrypted FCM device token, responses: { '201': { description: Registered device identifier only. }, '503': { description: Push is not configured. } } }
+  /push-devices/{device}:
+    delete: { summary: Remove the current user's push registration, responses: { '200': { description: Registration removed. } } }
+  /integrations:
+    get: { summary: List configured integration connections without credential values, responses: { '200': { description: Connections and provider catalog. } } }
+    post: { summary: Configure an integration connection, responses: { '201': { description: Connection metadata. } } }
+  /integrations/oauth/{provider}/authorize:
+    post: { summary: Create a short-lived OAuth state and return the provider authorization URL, responses: { '200': { description: Redirect URL; no provider secrets are returned. }, '404': { description: Provider is not enabled. } } }
+  /integrations/oauth/{provider}/callback:
+    get: { security: [], summary: Validate one-time OAuth state and exchange the provider authorization code server-side, responses: { '302': { description: Redirect to integration settings with a generic outcome. } } }
+  /integrations/{integration}/test:
+    post: { summary: Send a provider test event, responses: { '200': { description: Test result. }, '422': { description: Adapter or connection error. } } }
+  /integrations/{integration}:
+    delete: { summary: Disconnect a connection and delete its credentials, responses: { '200': { description: Disconnected. } } }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: laravel-session
+      description: The actual cookie name follows SESSION_COOKIE or APP_NAME in server configuration.

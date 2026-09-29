@@ -1,0 +1,7 @@
+Options -Indexes
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule (^|/)\. - [F,L]
+    RewriteRule ^(\.env|composer\.(json|lock)|artisan|phpunit\.xml|README\.md) - [F,L,NC]
+</IfModule>

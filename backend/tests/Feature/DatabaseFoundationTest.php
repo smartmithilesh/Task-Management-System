@@ -90,14 +90,14 @@ class DatabaseFoundationTest extends TestCase
 
         $this->assertDatabaseCount('task_statuses', 7);
         $this->assertDatabaseCount('task_priorities', 4);
-        $this->assertDatabaseCount('permissions', 25);
+        $this->assertDatabaseCount('permissions', 27);
         $this->assertDatabaseCount('roles', 4);
         $this->assertDatabaseCount('notification_types', 9);
         $this->assertDatabaseCount('system_settings', 9);
         $this->assertDatabaseCount('users', 0);
 
         $superAdmin = Role::query()->where('scope_key', 'global:super-admin')->firstOrFail();
-        $this->assertCount(25, $superAdmin->permissions);
+        $this->assertCount(27, $superAdmin->permissions);
     }
 
     public function test_departments_can_reuse_a_slug_across_organizations(): void

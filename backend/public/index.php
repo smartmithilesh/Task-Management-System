@@ -7,7 +7,9 @@ define('LARAVEL_START', microtime(true));
 
 // The installer runs before Laravel so a fresh deployment does not need a
 // manually prepared .env file (or APP_KEY) to render the setup wizard.
-$installationLock = __DIR__.'/../storage/app/installed.lock';
+$installationLock = getenv('APP_ENV') === 'testing' && getenv('INSTALLATION_LOCK_PATH')
+    ? getenv('INSTALLATION_LOCK_PATH')
+    : __DIR__.'/../storage/app/installed.lock';
 $requestPath = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
 $scriptDirectory = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/index.php'));
 $basePath = $scriptDirectory === '/' ? '' : rtrim($scriptDirectory, '/');

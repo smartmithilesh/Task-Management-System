@@ -1,26 +1,18 @@
 # Task Management System
 
-A self-hosted task management product built with a Laravel API, a Next.js web client, and a Flutter mobile client.
+Laravel 13 API and installer, static-export Next.js browser client, and Flutter mobile source for an organization task and project workspace.
 
-## Project status
+## Local browser setup
 
-- Phase 1 architecture: [ARCHITECTURE.md](ARCHITECTURE.md)
-- Phase 2 installation wizard: Laravel backend scaffold and pre-boot web installer
-- Phase 2 details and security notes: [docs/phase-2-installation.md](docs/phase-2-installation.md)
-- Later product modules are planned in the architecture roadmap
+The app's document root must be the repository's `backend/public` directory, or Apache must apply the root forwarding rules in `.htaccess`. Run the standalone installer at `/install`, then sign in at `/`. The checked-in host `taskmangment.local` should open `http://taskmangment.local/`; `/backend/` is a protected application-source path, not the product entry point.
 
-## Backend development
+The browser client is in `web/`. Build it with `cd web && npm ci && npm run build`. Static pages and assets publish into `backend/public`; Laravel serves the root page and `/api/v1` endpoints. The web client uses same-origin Laravel sessions and CSRF tokens.
 
-Requirements: PHP 8.3+, Composer 2, MySQL 8+ (SQLite is available for local Laravel development), and the PHP extensions listed by the installer.
+## Components
 
-```bash
-cd backend
-composer install
-php artisan serve
-```
+- `backend/`: Laravel API, pre-boot installer, migrations, seed data, private attachments, and API token authentication.
+- `web/`: Next.js browser client for the overview, people, projects, tasks, board, calendar, and reports.
+- `mobile/`: Flutter sign-in, task list, task details, comments, checklist, and timer client. See [mobile setup](mobile/README.md).
+- `docs/`: API, deployment, operational, backup, and upgrade guidance.
 
-When no installation lock exists, requests are redirected to `/install`. The wizard checks server requirements, tests MySQL credentials, configures application settings, creates the first administrator, runs pending migrations and seeders, and writes the one-time lock to `backend/storage/app/installed.lock`. It does not drop existing tables. Use an empty application database; databases with existing users are rejected to prevent accidental takeover.
-
-For web hosting, set the site's document root to `backend/public/`. Keep `backend/.env`, `backend/storage`, and all source files outside public web access. Ensure `backend/storage` and `backend/bootstrap/cache` are writable by the PHP process. HTTPS is required for production deployments.
-
-The installer currently creates the initial Laravel administrator record. Login, roles, organization setup, and the rest of the task management product are scheduled for later phases.
+Start with [deployment](docs/deployment/production.md), [operations](docs/operations/backup-and-upgrade.md), [OAuth provider setup](docs/api/oauth-integrations.md), and the [OpenAPI document](docs/api/openapi.yaml).

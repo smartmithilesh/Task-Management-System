@@ -35,6 +35,7 @@ class InstallationWizardTest extends TestCase
     private function runInstallerRequest(string $path): string
     {
         $projectRoot = dirname(__DIR__, 2);
+        $temporaryLock = sys_get_temp_dir().'/task-management-installer-test-'.bin2hex(random_bytes(8)).'.lock';
         $frontController = var_export($projectRoot.'/public/index.php', true);
         $requestPath = var_export($path, true);
         $script = '$_SERVER["REQUEST_URI"]='.$requestPath.';'
@@ -47,7 +48,7 @@ class InstallationWizardTest extends TestCase
             0 => ['pipe', 'r'],
             1 => ['pipe', 'w'],
             2 => ['pipe', 'w'],
-        ], $pipes, $projectRoot);
+        ], $pipes, $projectRoot, [...$_ENV, 'APP_ENV' => 'testing', 'INSTALLATION_LOCK_PATH' => $temporaryLock]);
 
         $this->assertIsResource($process, 'Unable to start the isolated installer request.');
         fclose($pipes[0]);
@@ -58,6 +59,7 @@ class InstallationWizardTest extends TestCase
         $exitCode = proc_close($process);
 
         $this->assertSame(0, $exitCode, $errors);
+
         return $html;
     }
 }
