@@ -1,6 +1,6 @@
-# Task Management System — Phase 1 Architecture
+# Task Management System — Architecture and Implementation Status
 
-This is the system blueprint and setup plan for Phase 1. It does not implement the modules that follow. The Laravel API is the source of truth for business rules and data; the web and mobile clients are consumers of that API.
+This document began as the Phase 1 blueprint. The roadmap in Section 13 now tracks what is implemented, partially implemented, and still pending. Laravel remains the source of truth for business rules and data; web and mobile clients consume its API.
 
 ## 1. System architecture
 
@@ -95,7 +95,7 @@ Move the generated app into `mobile/` (or create it directly there). Organize by
 
 Use MySQL 8 with InnoDB, `utf8mb4`, foreign keys, indexed lookup/filter columns, and UTC timestamps. Laravel migrations are the schema source of truth. Prefer numeric internal primary keys plus non-sequential public UUID/ULID identifiers in APIs. Use soft deletes selectively for recoverable business records; retain immutable audit events separately.
 
-Initial domain areas (implemented in later phases):
+Domain areas covered by the current schema and API:
 
 | Area | Main records and relationships |
 |---|---|
@@ -143,39 +143,41 @@ Maintain backend `.env.example` with safe keys such as `APP_NAME`, `APP_ENV`, `A
 
 **Production baseline:** PHP 8.3+ with required extensions (PDO MySQL, OpenSSL, Mbstring, Fileinfo, Tokenizer, XML, Ctype, JSON, BCMath, GD, ZIP, cURL), Composer-built dependencies, MySQL 8+, Apache or Nginx/PHP-FPM, TLS, and writable storage/cache directories with least-privilege ownership. Configure backups and restore drills, log rotation, process supervision for queue workers, and a once-per-minute scheduler. Redis is recommended for shared cache/queues at scale, but should not be a hard install requirement for smaller shared hosting. Keep uploads private and serve them through authorized endpoints or short-lived signed URLs. Production web root must point only to Laravel `public/`; disable directory listing and deny access to dotfiles, source, logs, and environment files.
 
-## 13. Development roadmap
+## 13. Development roadmap and status
 
-Implement and review one phase at a time, following the supplied order:
+Statuses reflect the code and documentation currently in this repository. **Complete** means the implementation exists; it does not imply a production deployment or external provider setup has been completed. Work through the partial and pending rows one at a time. The task-level checklist is in [docs/phase-tracker.md](docs/phase-tracker.md).
 
-1. Architecture and project setup (this document)
-2. Standalone installation wizard
-3. Database architecture and baseline seed data
-4. Authentication
-5. User management
-6. Roles and permissions
-7. Organizations, departments, and teams
-8. Projects
-9. Tasks
-10. Subtasks and checklists
-11. Comments and attachments
-12. Activity logs
-13. Time tracking
-14. Notifications
-15. Dashboard
-16. Kanban
-17. Calendar
-18. Reports and exports
-19. Integrations framework/providers
-20. REST API completion and OpenAPI documentation
-21. Next.js web client
-22. Flutter mobile client and push notifications
-23. Automated tests and installation scenarios
-24. Security review
-25. Performance optimization
-26. Production deployment guides and operations
-27. Upgrade and backup mechanisms
+| # | Phase | Status | Remaining work |
+|---:|---|---|---|
+| 1 | Architecture and project setup | Complete | Keep this document aligned with implementation. |
+| 2 | Standalone installation wizard | Complete | Verify installation on each target hosting profile. |
+| 3 | Database architecture and baseline seed data | Complete | Production-specific migration review remains part of release work. |
+| 4 | Authentication | Complete | Configure production mail and domain settings where needed. |
+| 5 | User management | Complete | — |
+| 6 | Roles and permissions | Complete | — |
+| 7 | Organizations, departments, and teams | Complete | The initial release is single-organization per installation. |
+| 8 | Projects | Complete | — |
+| 9 | Tasks | Complete | — |
+| 10 | Subtasks and checklists | Complete | — |
+| 11 | Comments and attachments | Complete | Verify private storage and retention on the deployment host. |
+| 12 | Activity logs | Complete | — |
+| 13 | Time tracking | Complete | — |
+| 14 | Notifications | Partial | Configure and validate customer mail and Firebase push delivery. |
+| 15 | Dashboard | Complete | — |
+| 16 | Kanban | Complete | — |
+| 17 | Calendar | Complete | — |
+| 18 | Reports and exports | Complete | — |
+| 19 | Integrations framework/providers | Partial | GitHub, calendar, and Dropbox record synchronization is not implemented; configure provider credentials to enable OAuth. |
+| 20 | REST API completion and OpenAPI documentation | Partial | Review the OpenAPI contract against every shipped route and response. |
+| 21 | Next.js web client | Complete | The same-origin browser client is built and working with the MySQL-backed Laravel app. |
+| 22 | Flutter mobile client and push notifications | Partial | Android release setup is deferred; replace platform IDs, configure signing, and add Firebase platform files before release. iOS release builds require macOS and Xcode. |
+| 23 | Automated tests and installation scenarios | Partial | Automated feature tests exist; complete a fresh MySQL installation and production-like end-to-end verification. |
+| 24 | Security review | Pending | Complete and document a release security review. |
+| 25 | Performance optimization | Pending | Profile expected workloads and optimize measured bottlenecks. |
+| 26 | Production deployment guides and operations | Partial | Guides exist; verify them against the actual target hosting environment, queue workers, scheduler, TLS, and monitoring. |
+| 27 | Upgrade and backup mechanisms | Partial | Commands and guidance exist; complete and record a MySQL backup/restore drill. |
 
-For each implementation phase, define schema/relationships, endpoint contracts, permission rules, validation, failure behavior, and operational impact before building its components. Add automated tests with that phase; do not claim production readiness until the complete security, recovery, deployment, and upgrade paths are verified.
+For remaining implementation work, define schema/relationships, endpoint contracts, permission rules, validation, failure behavior, and operational impact before building. Add automated coverage with each change. Do not claim production readiness until security, recovery, deployment, and upgrade paths have been verified.
 
 ## 14. Git and release workflow
 

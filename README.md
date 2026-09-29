@@ -16,3 +16,7 @@ The browser client is in `web/`. Build it with `cd web && npm ci && npm run buil
 - `docs/`: API, deployment, operational, backup, and upgrade guidance.
 
 Start with [deployment](docs/deployment/production.md), [operations](docs/operations/backup-and-upgrade.md), [OAuth provider setup](docs/api/oauth-integrations.md), and the [OpenAPI document](docs/api/openapi.yaml).
+
+## Implementation status
+
+The browser client, MySQL-backed Laravel API, and core task management features are implemented. Use the [detailed phase checklist](docs/phase-tracker.md) to resume work across phases and systems; the [architecture status](ARCHITECTURE.md#13-development-roadmap-and-status) provides the summary. Android release setup is deferred.
