@@ -2,6 +2,8 @@
 
 Use this file as the durable work checklist for this repository. It records project progress independently of any chat or coding system. Work one phase at a time; mark a task complete only after its implementation or verification is present in the repository. Keep credentials and customer data out of this file.
 
+When resuming on another computer, pull `main` and follow [Fresh-system setup](development-setup.md). Environment files, database contents, and build outputs are intentionally not stored in Git.
+
 `[x]` means complete, `[ ]` means pending, and a phase marked **Partial** has both completed and pending tasks. Update the matching status in [Architecture and implementation status](../ARCHITECTURE.md#13-development-roadmap-and-status) when a phase changes.
 
 ## Phase checklist
